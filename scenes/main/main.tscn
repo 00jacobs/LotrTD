@@ -1,0 +1,165 @@
+[gd_scene format=3 uid="uid://dgqdps0cr55xd"]
+
+[node name="Main" type="Node2D"]
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="Map" type="TileMap" parent="World"]
+
+[node name="PathFollowRoot" type="Node2D" parent="World"]
+
+[node name="BuildGrid" type="Node2D" parent="World"]
+
+[node name="TowerRoot" type="Node2D" parent="World"]
+
+[node name="ProjectileRoot" type="Node2D" parent="World"]
+
+[node name="EnemyRoot" type="Node2D" parent="World"]
+
+[node name="VFXRoot" type="Node2D" parent="World"]
+
+[node name="Systems" type="Node" parent="."]
+
+[node name="GameManager" type="Node" parent="Systems"]
+
+[node name="WaveManager" type="Node" parent="Systems"]
+
+[node name="EconomyManager" type="Node" parent="Systems"]
+
+[node name="BuildManager" type="Node" parent="Systems"]
+
+[node name="AudioManager" type="Node" parent="Systems"]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopBar" type="HBoxContainer" parent="UI/HUD"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 31.0
+grow_horizontal = 2
+
+[node name="GoldLabel" type="Label" parent="UI/HUD/TopBar"]
+layout_mode = 2
+text = "Gold: 0"
+
+[node name="LivesLabel" type="Label" parent="UI/HUD/TopBar"]
+layout_mode = 2
+text = "Lives: 0"
+
+[node name="WaveLabel" type="Label" parent="UI/HUD/TopBar"]
+layout_mode = 2
+text = "Wave: 0"
+
+[node name="BuildPanel" type="PanelContainer" parent="UI/HUD"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -120.0
+offset_right = 200.0
+offset_bottom = -8.0
+grow_vertical = 0
+
+[node name="TowerButton_Archer" type="Button" parent="UI/HUD/BuildPanel"]
+layout_mode = 2
+text = "Archer"
+
+[node name="TowerButton_Cannon" type="Button" parent="UI/HUD/BuildPanel"]
+layout_mode = 2
+text = "Cannon"
+
+[node name="TowerButton_Rapid" type="Button" parent="UI/HUD/BuildPanel"]
+layout_mode = 2
+text = "Rapid"
+
+[node name="ActionPanel" type="PanelContainer" parent="UI/HUD"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -120.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="UpgradeButton" type="Button" parent="UI/HUD/ActionPanel"]
+layout_mode = 2
+text = "Upgrade"
+
+[node name="SellButton" type="Button" parent="UI/HUD/ActionPanel"]
+layout_mode = 2
+text = "Sell"
+
+[node name="StartWaveButton" type="Button" parent="UI/HUD/ActionPanel"]
+layout_mode = 2
+text = "Start wave"
+
+[node name="HintLabel" type="Label" parent="UI/HUD"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -40.0
+offset_right = 200.0
+offset_bottom = -8.0
+grow_horizontal = 2
+text = ""
+horizontal_alignment = 1
+
+[node name="PauseMenu" type="Control" parent="UI"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="WinScreen" type="Control" parent="UI"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LoseScreen" type="Control" parent="UI"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Debug" type="Node" parent="."]
+
+[node name="DebugOverlay" type="Control" parent="Debug"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SceneRefs" type="Node" parent="."]
