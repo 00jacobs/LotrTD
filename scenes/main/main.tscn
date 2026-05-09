@@ -4,7 +4,7 @@
 
 [node name="World" type="Node2D" parent="."]
 
-[node name="Map" type="TileMap" parent="World"]
+[node name="Map" type="TileMapLayer" parent="World"]
 
 [node name="PathFollowRoot" type="Node2D" parent="World"]
 
