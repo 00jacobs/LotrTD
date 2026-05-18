@@ -1,65 +1,79 @@
-[gd_scene format=3 uid="uid://dgqdps0cr55xd"]
+[gd_scene load_steps=3 format=3 uid="uid://dgqdps0cr55xd"]
 
-[node name="Main" type="Node2D"]
+[ext_resource type="Script" path="res://scripts/entities/world_view.gd" id="1_world_view"]
 
-[node name="World" type="Node2D" parent="."]
+[sub_resource type="Curve2D" id="Curve2D_enemy_path"]
+_data = {
+"points": PackedVector2Array(-40, 360, 0, 0, 0, 0, 320, 360, 0, 0, 0, 0, 320, 200, 0, 0, 0, 0, 960, 200, 0, 0, 0, 0, 960, 520, 0, 0, 0, 0, 1320, 520, 0, 0, 0, 0),
+"point_count": 6
+}
 
-[node name="Map" type="TileMapLayer" parent="World"]
+[node name="Main" type="Node2D" unique_id=915947399]
 
-[node name="PathFollowRoot" type="Node2D" parent="World"]
+[node name="GameLayer" type="CanvasLayer" parent="."]
+layer = 0
 
-[node name="BuildGrid" type="Node2D" parent="World"]
+[node name="World" type="Node2D" parent="GameLayer" unique_id=1842441799]
+script = ExtResource("1_world_view")
 
-[node name="TowerRoot" type="Node2D" parent="World"]
+[node name="Map" type="TileMapLayer" parent="World" unique_id=880667661]
 
-[node name="ProjectileRoot" type="Node2D" parent="World"]
+[node name="PathFollowRoot" type="Node2D" parent="World" unique_id=124550712]
 
-[node name="EnemyRoot" type="Node2D" parent="World"]
+[node name="EnemyPath" type="Path2D" parent="World/PathFollowRoot" unique_id=1469034611]
+curve = SubResource("Curve2D_enemy_path")
 
-[node name="VFXRoot" type="Node2D" parent="World"]
+[node name="Spawn" type="Marker2D" parent="World/PathFollowRoot" unique_id=499797723]
+position = Vector2(-40, 360)
 
-[node name="Systems" type="Node" parent="."]
+[node name="Exit" type="Marker2D" parent="World/PathFollowRoot" unique_id=132358298]
+position = Vector2(1320, 520)
 
-[node name="GameManager" type="Node" parent="Systems"]
+[node name="BuildGrid" type="Node2D" parent="World" unique_id=884146978]
 
-[node name="WaveManager" type="Node" parent="Systems"]
+[node name="TowerRoot" type="Node2D" parent="World" unique_id=1699565531]
 
-[node name="EconomyManager" type="Node" parent="Systems"]
+[node name="ProjectileRoot" type="Node2D" parent="World" unique_id=1833481314]
 
-[node name="BuildManager" type="Node" parent="Systems"]
+[node name="EnemyRoot" type="Node2D" parent="World" unique_id=2126907730]
 
-[node name="AudioManager" type="Node" parent="Systems"]
+[node name="VFXRoot" type="Node2D" parent="World" unique_id=1432824422]
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="Systems" type="Node" parent="." unique_id=1521449639]
 
-[node name="HUD" type="Control" parent="UI"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="GameManager" type="Node" parent="Systems" unique_id=1251552268]
 
-[node name="TopBar" type="HBoxContainer" parent="UI/HUD"]
+[node name="WaveManager" type="Node" parent="Systems" unique_id=1648952239]
+
+[node name="EconomyManager" type="Node" parent="Systems" unique_id=108634196]
+
+[node name="BuildManager" type="Node" parent="Systems" unique_id=1851850586]
+
+[node name="AudioManager" type="Node" parent="Systems" unique_id=1056397735]
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1152609868]
+layer = 10
+
+[node name="TopBar" type="HBoxContainer" parent="UI" unique_id=227367641]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 31.0
 grow_horizontal = 2
 
-[node name="GoldLabel" type="Label" parent="UI/HUD/TopBar"]
+[node name="GoldLabel" type="Label" parent="UI/TopBar" unique_id=1817665949]
 layout_mode = 2
 text = "Gold: 0"
 
-[node name="LivesLabel" type="Label" parent="UI/HUD/TopBar"]
+[node name="LivesLabel" type="Label" parent="UI/TopBar" unique_id=12892118]
 layout_mode = 2
 text = "Lives: 0"
 
-[node name="WaveLabel" type="Label" parent="UI/HUD/TopBar"]
+[node name="WaveLabel" type="Label" parent="UI/TopBar" unique_id=1193846832]
 layout_mode = 2
 text = "Wave: 0"
 
-[node name="BuildPanel" type="PanelContainer" parent="UI/HUD"]
+[node name="BuildPanel" type="PanelContainer" parent="UI" unique_id=1899472057]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -70,19 +84,19 @@ offset_right = 200.0
 offset_bottom = -8.0
 grow_vertical = 0
 
-[node name="TowerButton_Archer" type="Button" parent="UI/HUD/BuildPanel"]
+[node name="TowerButton_Archer" type="Button" parent="UI/BuildPanel" unique_id=1760513400]
 layout_mode = 2
 text = "Archer"
 
-[node name="TowerButton_Cannon" type="Button" parent="UI/HUD/BuildPanel"]
+[node name="TowerButton_Cannon" type="Button" parent="UI/BuildPanel" unique_id=1569666053]
 layout_mode = 2
 text = "Cannon"
 
-[node name="TowerButton_Rapid" type="Button" parent="UI/HUD/BuildPanel"]
+[node name="TowerButton_Rapid" type="Button" parent="UI/BuildPanel" unique_id=255657256]
 layout_mode = 2
 text = "Rapid"
 
-[node name="ActionPanel" type="PanelContainer" parent="UI/HUD"]
+[node name="ActionPanel" type="PanelContainer" parent="UI" unique_id=1090593133]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -96,19 +110,19 @@ offset_bottom = -8.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="UpgradeButton" type="Button" parent="UI/HUD/ActionPanel"]
+[node name="UpgradeButton" type="Button" parent="UI/ActionPanel" unique_id=1401619139]
 layout_mode = 2
 text = "Upgrade"
 
-[node name="SellButton" type="Button" parent="UI/HUD/ActionPanel"]
+[node name="SellButton" type="Button" parent="UI/ActionPanel" unique_id=574161810]
 layout_mode = 2
 text = "Sell"
 
-[node name="StartWaveButton" type="Button" parent="UI/HUD/ActionPanel"]
+[node name="StartWaveButton" type="Button" parent="UI/ActionPanel" unique_id=1935926130]
 layout_mode = 2
 text = "Start wave"
 
-[node name="HintLabel" type="Label" parent="UI/HUD"]
+[node name="HintLabel" type="Label" parent="UI" unique_id=167195167]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -120,10 +134,10 @@ offset_top = -40.0
 offset_right = 200.0
 offset_bottom = -8.0
 grow_horizontal = 2
-text = ""
+grow_vertical = 0
 horizontal_alignment = 1
 
-[node name="PauseMenu" type="Control" parent="UI"]
+[node name="PauseMenu" type="Control" parent="UI" unique_id=466610788]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -132,7 +146,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="WinScreen" type="Control" parent="UI"]
+[node name="WinScreen" type="Control" parent="UI" unique_id=1767509397]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -141,7 +155,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="LoseScreen" type="Control" parent="UI"]
+[node name="LoseScreen" type="Control" parent="UI" unique_id=1824445252]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -150,9 +164,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Debug" type="Node" parent="."]
+[node name="Debug" type="Node" parent="." unique_id=1128698783]
 
-[node name="DebugOverlay" type="Control" parent="Debug"]
+[node name="DebugOverlay" type="Control" parent="Debug" unique_id=1077512044]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -162,4 +176,4 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="SceneRefs" type="Node" parent="."]
+[node name="SceneRefs" type="Node" parent="." unique_id=1101278450]
