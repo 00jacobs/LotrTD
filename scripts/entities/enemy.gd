@@ -78,21 +78,21 @@ func _sample_at_distance(dist: float) -> Vector2:
 
 
 func _sample_fallback(dist: float) -> Vector2:
-	var remaining := dist
+	var remaining: float = dist
 	for i in range(1, FALLBACK_ANCHORS.size()):
-		var from := _path.to_global(FALLBACK_ANCHORS[i - 1])
-		var to := _path.to_global(FALLBACK_ANCHORS[i])
-		var segment_length := from.distance_to(to)
+		var from: Vector2 = _path.to_global(FALLBACK_ANCHORS[i - 1] as Vector2)
+		var to: Vector2 = _path.to_global(FALLBACK_ANCHORS[i] as Vector2)
+		var segment_length: float = from.distance_to(to)
 		if segment_length < 0.001:
 			continue
 		if remaining <= segment_length:
 			return from.lerp(to, remaining / segment_length)
 		remaining -= segment_length
-	return _path.to_global(FALLBACK_ANCHORS[FALLBACK_ANCHORS.size() - 1])
+	return _path.to_global(FALLBACK_ANCHORS[FALLBACK_ANCHORS.size() - 1] as Vector2)
 
 
 func _polyline_length(anchors: PackedVector2Array) -> float:
-	var total := 0.0
+	var total: float = 0.0
 	for i in range(1, anchors.size()):
-		total += anchors[i].distance_to(anchors[i - 1])
+		total += (anchors[i] as Vector2).distance_to(anchors[i - 1] as Vector2)
 	return total

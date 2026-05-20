@@ -23,14 +23,14 @@ func _spawn_test_enemy() -> void:
 		push_error("EnemySpawner: assign enemy_scene in the inspector.")
 		return
 
-	var path := get_node_or_null("../PathFollowRoot/EnemyPath") as Path2D
+	var path: Path2D = get_node_or_null("../PathFollowRoot/EnemyPath") as Path2D
 	if path == null:
 		push_error("EnemySpawner: could not find PathFollowRoot/EnemyPath.")
 		return
 
 	_ensure_path_curve(path)
 
-	var enemy := enemy_scene.instantiate()
+	var enemy: Node = enemy_scene.instantiate()
 	add_child(enemy)
 	if enemy.has_method("setup"):
 		enemy.setup(path)
@@ -41,7 +41,7 @@ func _spawn_test_enemy() -> void:
 func _ensure_path_curve(path: Path2D) -> void:
 	if path.curve == null:
 		path.curve = Curve2D.new()
-	var curve := path.curve
+	var curve: Curve2D = path.curve
 	if curve.get_point_count() >= 2 and curve.get_baked_length() > 0.0:
 		return
 	curve.clear_points()
