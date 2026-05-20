@@ -33,6 +33,9 @@ position = Vector2(1320, 520)
 
 [node name="TowerRoot" type="Node2D" parent="World" unique_id=1699565531]
 
+[node name="DemoTower" type="Marker2D" parent="World/TowerRoot" unique_id=1699565532]
+position = Vector2(420, 260)
+
 [node name="ProjectileRoot" type="Node2D" parent="World" unique_id=1833481314]
 
 [node name="EnemyRoot" type="Node2D" parent="World" unique_id=2126907730]
