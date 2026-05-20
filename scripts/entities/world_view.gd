@@ -1,6 +1,6 @@
 extends Node2D
 
-## Map + path + test enemy (Week 3) + one tower that shoots in range (Week 4).
+## Weeks 3–5: map, path, enemy (HP / death), tower + shots, gold on kill.
 
 const FALLBACK_ANCHORS: PackedVector2Array = [
 	Vector2(-40, 360),
@@ -20,6 +20,8 @@ const FALLBACK_ANCHORS: PackedVector2Array = [
 @export var enemy_speed: float = 140.0
 @export var enemy_radius: float = 18.0
 @export var enemy_color: Color = Color(1.0, 0.12, 0.12, 1.0)
+@export var enemy_max_hp: float = 120.0
+@export var gold_per_kill: int = 15
 
 @export var tower_position: Vector2 = Vector2(420, 260)
 @export var tower_range: float = 280.0
@@ -27,6 +29,7 @@ const FALLBACK_ANCHORS: PackedVector2Array = [
 @export var fire_interval: float = 0.4
 @export var projectile_speed: float = 560.0
 @export var projectile_radius: float = 7.0
+@export var projectile_damage: float = 28.0
 @export var tower_color: Color = Color(0.25, 0.45, 0.85, 1.0)
 @export var projectile_color: Color = Color(1.0, 0.95, 0.35, 1.0)
 @export var show_tower_range: bool = true
@@ -34,14 +37,19 @@ const FALLBACK_ANCHORS: PackedVector2Array = [
 var _enemy_path: Path2D
 var _path_ready := false
 var _enemy_distance: float = 0.0
-var _enemy_finished := false
+var _enemy_alive := true
+var _enemy_hp: float = 0.0
 var _path_length: float = 0.0
 
 var _fire_timer: float = 0.0
 var _projectiles: Array[Dictionary] = []
 
+var _gold: int = 0
+var _gold_label: Label
+
 
 func _ready() -> void:
+	_gold_label = get_node_or_null("../../UI/TopBar/GoldLabel") as Label
 	_enemy_path = get_node_or_null("PathFollowRoot/EnemyPath") as Path2D
 	var tower_marker := get_node_or_null("TowerRoot/DemoTower") as Marker2D
 	if tower_marker != null:
@@ -50,9 +58,12 @@ func _ready() -> void:
 	_path_length = _polyline_length(_read_anchor_points())
 	_path_ready = true
 	_enemy_distance = 0.0
-	_enemy_finished = false
+	_enemy_alive = true
+	_enemy_hp = enemy_max_hp
 	_fire_timer = 0.0
 	_projectiles.clear()
+	_gold = 0
+	_update_gold_label()
 	set_process(true)
 	queue_redraw()
 
@@ -61,34 +72,61 @@ func _process(delta: float) -> void:
 	if not _path_ready:
 		return
 
-	var anchors := _read_anchor_points()
-	var enemy_pos := Vector2.ZERO
+	if not _enemy_alive:
+		queue_redraw()
+		return
 
-	if not _enemy_finished and _path_length > 0.0:
+	var anchors := _read_anchor_points()
+
+	if _path_length > 0.0:
 		_enemy_distance += enemy_speed * delta
 		if _enemy_distance >= _path_length:
 			_enemy_distance = _path_length
-			_enemy_finished = true
+			_enemy_alive = false
 			_projectiles.clear()
-		enemy_pos = _sample_polyline_at(anchors, _enemy_distance)
+			queue_redraw()
+			return
 
-		_fire_timer -= delta
-		if tower_range > 0.0 and _fire_timer <= 0.0 and tower_position.distance_to(enemy_pos) <= tower_range:
-			_fire_timer = fire_interval
-			_projectiles.append({"pos": tower_position})
+	var enemy_pos := _sample_polyline_at(anchors, _enemy_distance)
 
-		for i in range(_projectiles.size() - 1, -1, -1):
-			var p: Dictionary = _projectiles[i]
-			var pos: Vector2 = p["pos"]
-			var to_enemy := enemy_pos - pos
-			var dist := to_enemy.length()
-			if dist < enemy_radius + projectile_radius:
-				_projectiles.remove_at(i)
-				continue
-			if dist > 0.001:
-				p["pos"] = pos + to_enemy.normalized() * projectile_speed * delta
+	_fire_timer -= delta
+	if tower_range > 0.0 and _fire_timer <= 0.0 and tower_position.distance_to(enemy_pos) <= tower_range:
+		_fire_timer = fire_interval
+		_projectiles.append({"pos": tower_position})
+
+	for i in range(_projectiles.size() - 1, -1, -1):
+		var p: Dictionary = _projectiles[i]
+		var pos: Vector2 = p["pos"]
+		var to_enemy := enemy_pos - pos
+		var dist := to_enemy.length()
+		if dist < enemy_radius + projectile_radius:
+			_projectiles.remove_at(i)
+			if _enemy_alive:
+				_apply_damage(projectile_damage)
+			if not _enemy_alive:
+				break
+			continue
+		if dist > 0.001:
+			p["pos"] = pos + to_enemy.normalized() * projectile_speed * delta
+
+	if not _enemy_alive:
+		_projectiles.clear()
 
 	queue_redraw()
+
+
+func _apply_damage(amount: float) -> void:
+	_enemy_hp -= amount
+	if _enemy_hp <= 0.0:
+		_enemy_hp = 0.0
+		_enemy_alive = false
+		_gold += gold_per_kill
+		_update_gold_label()
+
+
+func _update_gold_label() -> void:
+	if _gold_label != null:
+		_gold_label.text = "Gold: %d" % _gold
 
 
 func _ensure_path_curve() -> void:
@@ -127,10 +165,20 @@ func _draw() -> void:
 		draw_circle(p["pos"], projectile_radius + 1.0, Color(0.1, 0.08, 0.02, 0.6))
 		draw_circle(p["pos"], projectile_radius, projectile_color)
 
-	if not _enemy_finished:
+	if _enemy_alive:
 		var enemy_pos := _sample_polyline_at(anchors, _enemy_distance)
 		draw_circle(enemy_pos, enemy_radius, enemy_color)
 		draw_arc(enemy_pos, enemy_radius, 0.0, TAU, 32, Color.WHITE, 2.0)
+		_draw_hp_bar(enemy_pos)
+
+
+func _draw_hp_bar(center: Vector2) -> void:
+	var ratio := 0.0 if enemy_max_hp <= 0.0 else clampf(_enemy_hp / enemy_max_hp, 0.0, 1.0)
+	var bar_w := 44.0
+	var bar_h := 6.0
+	var top_left := center + Vector2(-bar_w * 0.5, -enemy_radius - 14.0)
+	draw_rect(Rect2(top_left, Vector2(bar_w, bar_h)), Color(0.05, 0.05, 0.06, 0.85))
+	draw_rect(Rect2(top_left, Vector2(bar_w * ratio, bar_h)), Color(0.2, 0.85, 0.35, 0.95))
 
 
 func _read_anchor_points() -> PackedVector2Array:
