@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://dgqdps0cr55xd"]
+[gd_scene load_steps=4 format=3 uid="uid://dgqdps0cr55xd"]
 
 [ext_resource type="Script" path="res://scripts/entities/world_view.gd" id="1_world_view"]
+[ext_resource type="PackedScene" uid="uid://c7lose_screen3d01" path="res://scenes/ui/lose_screen.tscn" id="2_lose_screen"]
 
 [sub_resource type="Curve2D" id="Curve2D_enemy_path"]
 _data = {
@@ -70,7 +71,7 @@ text = "Gold: 100"
 
 [node name="LivesLabel" type="Label" parent="UI/TopBar" unique_id=12892118]
 layout_mode = 2
-text = "Lives: 0"
+text = "Lives: 20"
 
 [node name="WaveLabel" type="Label" parent="UI/TopBar" unique_id=1193846832]
 layout_mode = 2
@@ -79,6 +80,10 @@ text = "Wave: 0"
 [node name="DebugGoldButton" type="Button" parent="UI/TopBar" unique_id=1193846833]
 layout_mode = 2
 text = "+100 Gold (debug)"
+
+[node name="DebugLivesButton" type="Button" parent="UI/TopBar" unique_id=1193846834]
+layout_mode = 2
+text = "-1 Life (debug)"
 
 [node name="BuildPanel" type="PanelContainer" parent="UI" unique_id=1899472057]
 layout_mode = 1
@@ -115,7 +120,7 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -200.0
-offset_top = -120.0
+offset_top = -152.0
 offset_right = -8.0
 offset_bottom = -8.0
 grow_horizontal = 0
@@ -137,6 +142,11 @@ text = "Sell"
 layout_mode = 2
 focus_mode = 0
 text = "Start wave"
+
+[node name="RestartButton" type="Button" parent="UI/ActionPanel/ActionVBox" unique_id=1935926131]
+layout_mode = 2
+focus_mode = 0
+text = "Restart"
 
 [node name="HintLabel" type="Label" parent="UI" unique_id=167195167]
 layout_mode = 1
@@ -171,14 +181,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="LoseScreen" type="Control" parent="UI" unique_id=1824445252]
+[node name="LoseScreen" parent="UI" unique_id=1824445252 instance=ExtResource("2_lose_screen")]
 visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 
 [node name="Debug" type="Node" parent="." unique_id=1128698783]
 

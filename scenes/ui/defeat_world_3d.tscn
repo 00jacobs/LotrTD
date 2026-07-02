@@ -1,0 +1,144 @@
+[gd_scene load_steps=14 format=3 uid="uid://bdefeat3dworld01"]
+
+[ext_resource type="Script" path="res://scripts/ui/lose_screen_3d_world.gd" id="1_world"]
+[ext_resource type="Shader" path="res://assets/game_over/cc0/shaders/spatial_fire_raymarched.gdshader" id="2_fire_shader"]
+[ext_resource type="Shader" path="res://assets/game_over/cc0/shaders/evil_eye.gdshader" id="3_eye_shader"]
+[ext_resource type="Shader" path="res://assets/game_over/cc0/shaders/volcanic_ground.gdshader" id="4_ground_shader"]
+[ext_resource type="AudioStream" path="res://assets/game_over/cc0/audio/fire_crackling.ogg" id="5_fire_audio"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_fire"]
+noise_type = 2
+fractal_type = 2
+fractal_octaves = 4
+frequency = 0.08
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_fire"]
+noise = SubResource("FastNoiseLite_fire")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fire"]
+render_priority = 0
+shader = ExtResource("2_fire_shader")
+shader_parameter/raymarch_steps = 5
+shader_parameter/sample_jitter = true
+shader_parameter/potato_mode = false
+shader_parameter/billboard = true
+shader_parameter/billboard_z_offset = 0.675
+shader_parameter/proximity_fade_distance = 0.375
+shader_parameter/use_proximity_fade = false
+shader_parameter/time_scale = 0.03
+shader_parameter/noise_scale = 0.45
+shader_parameter/noise_threshold = 0.43
+shader_parameter/fire_height = 3.0
+shader_parameter/fire_width = 1.4
+shader_parameter/height_fade_start = 0.78
+shader_parameter/height_fade_end = 1.12
+shader_parameter/height_fade_power = 0.55
+shader_parameter/bounds_padding = 0.2
+shader_parameter/emission_strength = 14.0
+shader_parameter/sample_noise = SubResource("NoiseTexture3D_fire")
+
+[sub_resource type="QuadMesh" id="QuadMesh_fire"]
+size = Vector2(3.2, 7.0)
+orientation = 2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_eye"]
+render_priority = 20
+shader = ExtResource("3_eye_shader")
+shader_parameter/eye_open = 0.35
+shader_parameter/pulse = 0.5
+shader_parameter/time_scale = 1.0
+shader_parameter/emission_strength = 4.2
+shader_parameter/rim_strength = 0.09
+shader_parameter/depth_strength = 0.85
+shader_parameter/pulse_strength = 0.45
+shader_parameter/sclera_inner = Vector3(0.38, 0.2, 0.045)
+shader_parameter/sclera_outer = Vector3(0.34, 0.04, 0.01)
+shader_parameter/glow_color = Vector3(0.42, 0.05, 0.012)
+
+[sub_resource type="SphereMesh" id="SphereMesh_eye"]
+radius = 0.95
+height = 1.9
+radial_segments = 64
+rings = 48
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ground"]
+shader = ExtResource("4_ground_shader")
+shader_parameter/scroll_speed = 0.35
+shader_parameter/crack_scale = 4.5
+shader_parameter/glow_strength = 3.6
+shader_parameter/lava_hot = Vector3(0.72, 0.28, 0.04)
+shader_parameter/lava_cool = Vector3(0.22, 0.03, 0.008)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(28, 14)
+
+[sub_resource type="Environment" id="Environment_defeat"]
+background_mode = 1
+background_color = Color(0.01, 0, 0, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.18, 0.04, 0.02, 1)
+ambient_light_energy = 0.35
+tonemap_mode = 2
+tonemap_exposure = 1.05
+glow_enabled = true
+glow_intensity = 0.85
+glow_strength = 0.75
+glow_bloom = 0.15
+glow_blend_mode = 0
+glow_hdr_threshold = 1.45
+fog_enabled = true
+fog_light_color = Color(0.35, 0.08, 0.02, 1)
+fog_density = 0.045
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.02
+volumetric_fog_albedo = Color(0.25, 0.05, 0.02, 1)
+
+[node name="DefeatWorld3D" type="Node3D"]
+script = ExtResource("1_world")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_defeat")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0.72, 6.45)
+fov = 56.0
+current = true
+
+[node name="FillLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 4, 0)
+light_color = Color(0.55, 0.18, 0.08, 1)
+light_energy = 0.25
+shadow_enabled = true
+
+[node name="LavaGround" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.05, -1.5)
+mesh = SubResource("PlaneMesh_ground")
+surface_material_override/0 = SubResource("ShaderMaterial_ground")
+
+[node name="EyePivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 3.15)
+
+[node name="EyeMesh" type="MeshInstance3D" parent="EyePivot"]
+transform = Transform3D(0.82, 0, 0, 0, 0.36, 0, 0, 0, 0.76, 0, 0, 0.18)
+mesh = SubResource("SphereMesh_eye")
+surface_material_override/0 = SubResource("ShaderMaterial_eye")
+
+[node name="EyeGlow" type="OmniLight3D" parent="EyePivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.25)
+light_color = Color(0.95, 0.18, 0.06, 1)
+light_energy = 0.03
+omni_range = 4.0
+
+[node name="FireRoot" type="Node3D" parent="."]
+
+[node name="FireTemplate" type="MeshInstance3D" parent="FireRoot"]
+visible = false
+mesh = SubResource("QuadMesh_fire")
+surface_material_override/0 = SubResource("ShaderMaterial_fire")
+
+[node name="FireCrackle" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_fire_audio")
+volume_db = -6.0
+autoplay = false
+bus = &"Master"

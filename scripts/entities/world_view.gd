@@ -1,6 +1,6 @@
 extends Node2D
 
-## Weeks 3–7: map, path, waves, tower (click-to-place on build grid), gold.
+## Weeks 3–8: map, path, waves, tower placement, HUD (gold / lives / wave).
 
 const FALLBACK_ANCHORS: PackedVector2Array = [
 	Vector2(-40, 360),
@@ -22,6 +22,7 @@ const FALLBACK_ANCHORS: PackedVector2Array = [
 @export var enemy_color: Color = Color(1.0, 0.12, 0.12, 1.0)
 @export var enemy_max_hp: float = 120.0
 @export var starting_gold: int = 100
+@export var starting_lives: int = 20
 @export var gold_per_kill: int = 15
 
 @export var wave_enemy_count: int = 6
@@ -53,6 +54,7 @@ var _path_ready := false
 var _path_length: float = 0.0
 
 var _wave_running := false
+var _wave_number: int = 0
 var _spawns_remaining: int = 0
 var _spawn_timer: float = 0.0
 var _enemies: Array[Dictionary] = []
@@ -60,14 +62,20 @@ var _enemies: Array[Dictionary] = []
 var _projectiles: Array[Dictionary] = []
 
 var _gold: int = 0
+var _lives: int = 0
 var _placed_towers: Array[Dictionary] = []
 var _occupied_cells: Dictionary = {}
 var _gold_label: Label
+var _lives_label: Label
 var _wave_label: Label
 var _start_wave_button: Button
+var _restart_button: Button
 var _sell_button: Button
 var _debug_gold_button: Button
+var _debug_lives_button: Button
 var _hint_label: Label
+var _lose_screen: Control
+var _game_over := false
 
 var _hover_cell: Vector2i = Vector2i(-1, -1)
 
@@ -79,11 +87,16 @@ var _btn_rapid: Button
 
 func _ready() -> void:
 	_gold_label = get_node_or_null("../../UI/TopBar/GoldLabel") as Label
+	_lives_label = get_node_or_null("../../UI/TopBar/LivesLabel") as Label
 	_wave_label = get_node_or_null("../../UI/TopBar/WaveLabel") as Label
 	_start_wave_button = get_node_or_null("../../UI/ActionPanel/ActionVBox/StartWaveButton") as Button
 	if _start_wave_button != null:
 		# Use button_up so disabling the button does not leave a stuck "pressed" style (weird overlay).
 		_start_wave_button.button_up.connect(_on_start_wave_button_up)
+
+	_restart_button = get_node_or_null("../../UI/ActionPanel/ActionVBox/RestartButton") as Button
+	if _restart_button != null:
+		_restart_button.pressed.connect(_on_restart_button_pressed)
 
 	_sell_button = get_node_or_null("../../UI/ActionPanel/ActionVBox/SellButton") as Button
 	if _sell_button != null:
@@ -93,7 +106,13 @@ func _ready() -> void:
 	if _debug_gold_button != null:
 		_debug_gold_button.pressed.connect(_on_debug_gold_button_pressed)
 
+	_debug_lives_button = get_node_or_null("../../UI/TopBar/DebugLivesButton") as Button
+	if _debug_lives_button != null:
+		_debug_lives_button.pressed.connect(_on_debug_lives_button_pressed)
+
 	_hint_label = get_node_or_null("../../UI/HintLabel") as Label
+
+	_lose_screen = get_node_or_null("../../UI/LoseScreen") as Control
 
 	_btn_archer = get_node_or_null("../../UI/BuildPanel/BuildVBox/TowerButton_Archer") as Button
 	_btn_cannon = get_node_or_null("../../UI/BuildPanel/BuildVBox/TowerButton_Cannon") as Button
@@ -108,6 +127,7 @@ func _ready() -> void:
 	_path_length = _polyline_length(_read_anchor_points())
 	_path_ready = true
 	_wave_running = false
+	_wave_number = 0
 	_spawns_remaining = 0
 	_spawn_timer = 0.0
 	_enemies.clear()
@@ -115,7 +135,9 @@ func _ready() -> void:
 	_placed_towers.clear()
 	_occupied_cells.clear()
 	_gold = starting_gold
+	_lives = starting_lives
 	_update_gold_label()
+	_update_lives_label()
 	_update_wave_ui()
 	_update_start_button()
 	_update_sell_button()
@@ -126,6 +148,8 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _game_over:
+		return
 	if event.is_action_pressed("ui_accept"):
 		_try_start_wave()
 	if event is InputEventMouseButton:
@@ -137,6 +161,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _try_place_tower_on_click() -> void:
+	if _game_over:
+		return
 	var world_pos: Vector2 = get_global_mouse_position()
 	var cell := _world_pos_to_cell(world_pos)
 	if cell.x < 0 or _is_cell_occupied(cell):
@@ -172,6 +198,10 @@ func _on_debug_gold_button_pressed() -> void:
 	_gold += 100
 	_update_gold_label()
 	queue_redraw()
+
+
+func _on_debug_lives_button_pressed() -> void:
+	_lose_life()
 
 
 func _sell_tower_at_cell(cell: Vector2i) -> void:
@@ -316,13 +346,18 @@ func _on_start_wave_button_up() -> void:
 	_try_start_wave()
 
 
+func _on_restart_button_pressed() -> void:
+	get_tree().reload_current_scene()
+
+
 func _try_start_wave() -> void:
-	if _wave_running:
+	if _game_over or _wave_running:
 		return
 	_begin_wave()
 
 
 func _begin_wave() -> void:
+	_wave_number += 1
 	_wave_running = true
 	_spawns_remaining = wave_enemy_count
 	_spawn_timer = 0.0
@@ -336,7 +371,7 @@ func _begin_wave() -> void:
 
 
 func _process(delta: float) -> void:
-	if not _path_ready:
+	if not _path_ready or _game_over:
 		return
 
 	_update_build_hover()
@@ -396,6 +431,7 @@ func _move_enemies(delta: float, _anchors: PackedVector2Array) -> void:
 		dist += enemy_speed * delta
 		if dist >= _path_length:
 			_enemies.remove_at(i)
+			_lose_life()
 			continue
 		e["dist"] = dist
 
@@ -480,22 +516,56 @@ func _update_projectiles(delta: float, anchors: PackedVector2Array) -> void:
 			p["pos"] = pos + to_enemy.normalized() * shot_speed * delta
 
 
+func _lose_life() -> void:
+	if _game_over or _lives <= 0:
+		return
+	_lives -= 1
+	_update_lives_label()
+	if _lives <= 0:
+		_trigger_game_over()
+
+
+func _trigger_game_over() -> void:
+	_game_over = true
+	_wave_running = false
+	_enemies.clear()
+	_projectiles.clear()
+	_update_wave_ui()
+	_update_start_button()
+	_set_build_controls_enabled(false)
+	if _lose_screen != null and _lose_screen.has_method("play_defeat"):
+		_lose_screen.play_defeat(_wave_number)
+
+
+func _set_build_controls_enabled(enabled: bool) -> void:
+	if _sell_button != null:
+		_sell_button.disabled = not enabled
+	if _start_wave_button != null:
+		_start_wave_button.disabled = not enabled or _wave_running
+	if _restart_button != null:
+		_restart_button.disabled = false
+	for b: Button in [_btn_archer, _btn_cannon, _btn_rapid]:
+		if b != null:
+			b.disabled = not enabled
+
+
 func _update_gold_label() -> void:
 	if _gold_label != null:
 		_gold_label.text = "Gold: %d" % _gold
 
 
+func _update_lives_label() -> void:
+	if _lives_label != null:
+		_lives_label.text = "Lives: %d" % _lives
+
+
 func _update_wave_ui() -> void:
 	if _wave_label != null:
-		if _wave_running:
-			var alive := _enemies.size()
-			_wave_label.text = "Wave: 1 (%d alive)" % alive
-		else:
-			_wave_label.text = "Wave: —"
+		_wave_label.text = "Wave: %d" % _wave_number
 
 
 func _update_sell_button() -> void:
-	if _sell_button == null:
+	if _sell_button == null or _game_over:
 		return
 	var can_sell := _hover_cell.x >= 0 and _is_cell_occupied(_hover_cell)
 	_sell_button.disabled = not can_sell
@@ -515,7 +585,7 @@ func _update_start_button() -> void:
 		if _wave_running:
 			_start_wave_button.set_pressed_no_signal(false)
 			_start_wave_button.release_focus()
-		_start_wave_button.disabled = _wave_running
+		_start_wave_button.disabled = _wave_running or _game_over
 
 
 func _ensure_path_curve() -> void:

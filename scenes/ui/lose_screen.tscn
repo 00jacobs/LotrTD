@@ -1,0 +1,244 @@
+[gd_scene load_steps=10 format=3 uid="uid://c7lose_screen3d01"]
+
+[ext_resource type="Script" path="res://scripts/ui/lose_screen.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/Cinzel-Variable.ttf" id="2_cinzel"]
+[ext_resource type="Shader" path="res://assets/ui/shaders/top_vignette.gdshader" id="3_vignette_shader"]
+
+[sub_resource type="FontVariation" id="FontVariation_defeat"]
+base_font = ExtResource("2_cinzel")
+variation_opentype = {
+"wght": 700
+}
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vignette"]
+shader = ExtResource("3_vignette_shader")
+shader_parameter/strength = 0.4
+shader_parameter/top_bias = 0.68
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_flavor_pill"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.02, 0.005, 0.005, 0.62)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.08, 0.03, 0.45)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+bg_color = Color(0.07, 0.02, 0.015, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.78, 0.48, 0.1, 0.95)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_color = Color(0.55, 0.18, 0.04, 0.35)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+bg_color = Color(0.12, 0.035, 0.018, 0.97)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.78, 0.28, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_color = Color(0.92, 0.38, 0.08, 0.75)
+shadow_size = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+bg_color = Color(0.03, 0.008, 0.005, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.45, 0.22, 0.06, 0.85)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_color = Color(0.15, 0.04, 0.01, 0.25)
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bottom_bar"]
+bg_color = Color(0.015, 0.005, 0.005, 0.88)
+border_width_top = 1
+border_color = Color(0.35, 0.1, 0.04, 0.65)
+
+[node name="LoseScreen" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="ViewportContainer" type="SubViewportContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="ViewportContainer"]
+handle_input_locally = false
+size = Vector2i(1280, 720)
+render_target_update_mode = 4
+
+[node name="UiDimOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.52)
+
+[node name="TopVignette" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_vignette")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TitleLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 0.0
+offset_left = -380.0
+offset_top = 36.0
+offset_right = 380.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.93, 0.62, 0.12, 1)
+theme_override_colors/font_outline_color = Color(0.28, 0.06, 0.015, 0.95)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 8
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = SubResource("FontVariation_defeat")
+theme_override_font_sizes/font_size = 68
+text = "DEFEAT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FlavorBacking" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 0.0
+offset_left = -248.0
+offset_top = 292.0
+offset_right = 248.0
+offset_bottom = 352.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_flavor_pill")
+
+[node name="FlavorVBox" type="VBoxContainer" parent="FlavorBacking"]
+layout_mode = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="FlavorBacking/FlavorVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.82, 0.68, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.01, 0.008, 0.7)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "The Shadow prevails — the path is lost."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StatLabel" type="Label" parent="FlavorBacking/FlavorVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.62, 0.32, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.01, 0.008, 0.65)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 3
+theme_override_font_sizes/font_size = 18
+text = "Fell on Wave 1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BottomBar" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -132.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bottom_bar")
+
+[node name="RestartButton" type="Button" parent="BottomBar"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -148.0
+offset_top = -24.0
+offset_right = 148.0
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.78, 0.48, 1)
+theme_override_colors/font_hover_color = Color(1, 0.92, 0.68, 1)
+theme_override_colors/font_pressed_color = Color(0.82, 0.68, 0.48, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+text = "Restart"
+
+[node name="FadeOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
